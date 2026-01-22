@@ -118,7 +118,7 @@ const Achievements = {
     check(stats, currentGameHintsUsed = null) {
         const unlocked = this.getUnlocked();
         const newAchievements = [];
-        let unlockedChanged = false; // Track if unlocked array was modified
+        let unlockedChanged = false;
         
         console.log('🔍 Checking achievements...');
         console.log('📊 Current stats:', stats);
@@ -130,16 +130,12 @@ const Achievements = {
             const meetsCondition = achievement.check(stats);
             console.log(`  ${achievement.icon} ${achievement.name}: unlocked=${isUnlocked}, meets=${meetsCondition}`);
             
-            // Perfect Memory shows every time ONLY if no hints used in CURRENT game
             if (achievement.id === 'perfect_game') {
-                // Check if hints were used in the CURRENT game (not cumulative stats)
                 if (currentGameHintsUsed === 0) {
-                    // Add to localStorage if not already there
                     if (!isUnlocked) {
                         unlocked.push(achievement.id);
                         unlockedChanged = true;
                     }
-                    // Always add to newAchievements to show popup when earned THIS game
                     newAchievements.push(achievement);
                     console.log(`  ⭐ PERFECT MEMORY (earned THIS game - no hints used)`);
                 } else {
@@ -153,15 +149,12 @@ const Achievements = {
             }
         });
         
-        // Save to localStorage if unlocked array was modified
         if (unlockedChanged) {
             localStorage.setItem('achievements', JSON.stringify(unlocked));
             console.log('💾 Saved achievements:', unlocked);
         }
         
-        // Show popup notifications for new achievements
         if (newAchievements.length > 0) {
-            // Show achievements one after another with 3.5s delay between each
             newAchievements.forEach((a, index) => {
                 setTimeout(() => this.show(a), index * 3500);
             });
@@ -239,7 +232,6 @@ const Stats = {
         localStorage.setItem('gameStats', JSON.stringify(stats));
         console.log('📈 Stats AFTER update:', stats);
         console.log('🏆 Calling Achievements.check()...');
-        // Pass hintsUsed to achievement check for Perfect Memory detection
         const newAchievements = Achievements.check(stats, hintsUsed);
         return newAchievements;
     }
@@ -319,7 +311,6 @@ window.addEventListener("load", () => {
         playerGender.value = "";
     }
     
-    // Update history button on page load
     updateHistoryButton();
 });
 
@@ -718,8 +709,7 @@ ${recordBadge}
     localStorage.setItem("currentPlayer", JSON.stringify(currentPlayer));
 
     saveToHistory();
-    
-    // Update statistics AFTER showing win screen (this triggers achievements)
+
     const hintsUsedInGame = totalHints - hintLeft;
     Stats.update(true, moves, hintsUsedInGame, diff);
 }
@@ -776,7 +766,6 @@ function showEnd(msg) {
         <button id="mainMenuBtn">🏠 Main Menu</button>`;
     overlay.classList.add("visible");
     
-    // Add event listeners for dynamically created buttons
     document.getElementById("playAgainBtn").addEventListener('click', restart);
     document.getElementById("mainMenuBtn").addEventListener('click', () => backMenu());
 }
@@ -830,7 +819,6 @@ function updateUI() {
     timeEl.textContent = time;
 }
 
-// Fisher-Yates Shuffle Algorithm (proper random shuffle)
 function shuffle(array) {
     const arr = [...array];
     for (let i = arr.length - 1; i > 0; i--) {
@@ -855,7 +843,7 @@ soundIndicator.onclick = () => {
 // Initialize sound indicator
 soundIndicator.textContent = Sound.enabled ? '🔊' : '🔇';
 
-/* EVENT LISTENERS - Proper Separation */
+/* EVENT LISTENERS */
 
 // History button event listener
 document.getElementById('historyBtn').addEventListener('click', openHistory);
@@ -976,7 +964,6 @@ function checkAchievementStatus() {
     let message = '🏆 ACHIEVEMENT STATUS\n\n';
     message += `Unlocked: ${achievements.length}/7\n\n`;
     
-    // Use existing Achievements.list to avoid duplication
     Achievements.list.forEach(a => {
         const unlocked = achievements.includes(a.id);
         
@@ -1026,6 +1013,6 @@ function checkAchievementStatus() {
         localStorage.removeItem('achievements');
         localStorage.removeItem('gameStats');
         alert('✅ Reset complete! All achievements and stats cleared.');
-        location.reload(); // Refresh to show clean slate
+        location.reload();
     }
 }
